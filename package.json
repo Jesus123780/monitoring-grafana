@@ -1,0 +1,21 @@
+{
+  "author": "",
+  "dependencies": {
+    "express": "^4.19.2",
+    "puppeteer": "22.6.4"
+  },
+  "description": "",
+  "devDependencies": {
+    "nodemon": "3.1.0",
+    "ts-node": "10.9.2"
+  },
+  "keywords": [],
+  "license": "ISC",
+  "main": "index.js",
+  "name": "monitoring-grafana",
+  "scripts": {
+    "dev": "nodemon --exec ts-node src/index.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "version": "1.0.0"
+}

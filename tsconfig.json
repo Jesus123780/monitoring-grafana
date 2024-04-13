@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "esModuleInterop": true,
+    "target": "es6", // Matches your current setting
+    "module": "commonjs", // Matches your current setting
+    "strict": true, // Matches your current setting
+    "outDir": "./build",
+    "sourceMap": true, // Matches your current setting
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "allowJs": true // Enable JavaScript file compilation
+  },
+  "include": [
+    "src",
+    "commitlint.config.js",
+    "jest.config.ts",
+    ".eslintrc.js",
+    "src/**/*.ts"
+  ],
+  "exclude": ["node_modules", "**/__tests__/*"]
+}
