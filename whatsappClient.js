@@ -1,9 +1,6 @@
 const { Client, LocalAuth } = require('whatsapp-web.js');
-const qrcode = require('qrcode-terminal'); // Importa la biblioteca qrcode-terminal
+const qrcode = require('qrcode-terminal');
 
-const SESSION_FILE_PATH = 'session.json'
-
-const fs = require('fs')
 
 const wwebVersion = '2.2407.3';
 

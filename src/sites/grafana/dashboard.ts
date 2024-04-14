@@ -5,7 +5,7 @@ export class Dashboard {
     public page: Page | null = null;
 
     async iniciarNavegador() {
-        this.browser = await puppeteer.launch({ headless: false, args: ['--start-maximized'] });
+        this.browser = await puppeteer.launch({ headless: true, args: ['--start-maximized'] });
         this.page = await this.browser.newPage();
         await this.page.setViewport({ width: 1920, height: 900, deviceScaleFactor: 1, });
 

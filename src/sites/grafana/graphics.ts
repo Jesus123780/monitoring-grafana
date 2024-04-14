@@ -125,11 +125,13 @@ export class GrafanaScrapingGraphics {
                 )
               })
               const findError = newReports.find((report) => {
-                return report.type === 'PENDING'
+                return report.type === 'ALERTING'
               })
+              console.log({ findError })
+              console.log("🚀 ~ GrafanaScrapingGraphics ~ forawait ~ findError:", findError)
               if (findError) {
-                const tel = '+573014548087'
-                const groupName = 'Mensajitos de amor y pan'
+                const tel = process.env.NODE_PHONE as string
+                const groupName = process.env.NODE_GROUP_WS as string
                 const chat_id = tel.substring(1) + "@c.us";
                 const number_detail = await client.getNumberId(chat_id)
                 if (number_detail) {
@@ -143,10 +145,10 @@ export class GrafanaScrapingGraphics {
                       }
                     })
                   console.log({ groups })
-                  const sms = 'HOLA PAPU'
-                  await client.sendMessage(chat_id, sms)
+                  const message = formatMessage(newReports);
+                  await client.sendMessage(chat_id, message)
                   for (const group of groups) {
-                    await client.sendMessage(group.id, sms) 
+                    await client.sendMessage(group.id, message) 
                   }
                 }
               }
@@ -182,4 +184,37 @@ export class GrafanaScrapingGraphics {
     await this.page.screenshot({ path: nombreArchivo });
   }
 
+}
+
+function formatMessage(reports: { date: string; type: string; reported: boolean }[]): string {
+  const currentTime = new Date();
+  const currentHour = currentTime.getHours();
+  let salutation = '';
+
+  if (currentHour >= 5 && currentHour < 12) {
+      salutation = 'Hola, Buenos días';
+  } else if (currentHour >= 12 && currentHour < 18) {
+      salutation = 'Hola, Buenas tardes';
+  } else {
+      salutation = 'Hola, Buenas noches';
+  }
+
+  let message = `${salutation}, ha ocurrido un error:\n`;
+
+  reports.forEach((report, index) => {
+      const { date, type } = report;
+      const formattedDate = formatDate(date);
+
+      message += `- A las ${formattedDate} de tipo ${type}\n`;
+  });
+
+  message += 'Por favor, nos ayudan con unos errores. Muchas gracias, team 📈 🚀';
+
+  return message;
+}
+
+function formatDate(dateString: string): string {
+  const date = new Date(dateString);
+  const formattedTime = date.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  return formattedTime;
 }
