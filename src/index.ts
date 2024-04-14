@@ -47,7 +47,7 @@ import { GRAPHICS } from './helpers/graphics';
     await dashboard.capturarPantalla('grafana_dashboard_logged.png');
     const GrafanaGraphics = new GrafanaScrapingGraphics(login)
     await GrafanaGraphics.capturarPantalla('grafana_dashboard_graph.png');
-    
+
     await GrafanaGraphics.scrape(GRAPHICS, 'css-157c53p')
   }
 

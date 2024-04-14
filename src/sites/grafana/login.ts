@@ -55,7 +55,6 @@ export class GrafanaLogin {
                 this.page.waitForNavigation({ waitUntil: 'networkidle0' }) // Opcional: esperar a que la navegación haya terminado
               ]);
             }
-            console.log('Hola')
         }, 3); // Número de intentos (en este caso, 3)
           await this.page.click('#idSIButton9');
           await Promise.all([

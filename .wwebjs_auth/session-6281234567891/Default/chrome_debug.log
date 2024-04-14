@@ -1,0 +1,19 @@
+[0413/234425.672:INFO:CONSOLE(0)] "Error with Permissions-Policy header: Feature xr-spatial-tracking's parameters are ignored.", source:  (0)
+[0413/234425.672:INFO:CONSOLE(0)] "Error with Permissions-Policy header: Origin trial controlled feature not enabled: 'attribution-reporting'.", source:  (0)
+[0413/234425.672:INFO:CONSOLE(0)] "Error with Permissions-Policy header: Unrecognized feature: 'bluetooth'.", source:  (0)
+[0413/234425.672:INFO:CONSOLE(0)] "Error with Permissions-Policy header: Unrecognized feature: 'ch-save-data'.", source:  (0)
+[0413/234425.672:INFO:CONSOLE(0)] "Error with Permissions-Policy header: Unrecognized feature: 'gamepad'.", source:  (0)
+[0413/234425.672:INFO:CONSOLE(0)] "Error with Permissions-Policy header: Unrecognized feature: 'local-fonts'.", source:  (0)
+[0413/234425.672:INFO:CONSOLE(0)] "Error with Permissions-Policy header: Unrecognized feature: 'window-management'.", source:  (0)
+[0413/234425.693:WARNING:backend_impl.cc(1826)] Destroying invalid entry.
+[0413/234425.694:WARNING:backend_impl.cc(1826)] Destroying invalid entry.
+[0413/234425.694:WARNING:backend_impl.cc(1826)] Destroying invalid entry.
+[0413/234425.694:WARNING:backend_impl.cc(1826)] Destroying invalid entry.
+[0413/234425.694:WARNING:backend_impl.cc(1826)] Destroying invalid entry.
+[0413/234425.695:WARNING:backend_impl.cc(1826)] Destroying invalid entry.
+[0413/234425.696:WARNING:backend_impl.cc(1826)] Destroying invalid entry.
+[0413/234425.697:WARNING:backend_impl.cc(1826)] Destroying invalid entry.
+[0413/234425.697:WARNING:backend_impl.cc(1826)] Destroying invalid entry.
+[0413/234425.697:WARNING:backend_impl.cc(1826)] Destroying invalid entry.
+[0413/234425.697:WARNING:backend_impl.cc(1826)] Destroying invalid entry.
+[0413/234425.698:WARNING:backend_impl.cc(1826)] Destroying invalid entry.

@@ -4,12 +4,11 @@ export class Dashboard {
     private browser: Browser | null = null;
     public page: Page | null = null;
 
-    constructor() {}
-
     async iniciarNavegador() {
-        this.browser = await puppeteer.launch({ headless: false });
+        this.browser = await puppeteer.launch({ headless: false, args: ['--start-maximized'] });
         this.page = await this.browser.newPage();
-        await this.page.setViewport({ width: 1500, height: 800 });
+        await this.page.setViewport({ width: 1920, height: 900, deviceScaleFactor: 1, });
+
     }
 
     async irADashboard() {
