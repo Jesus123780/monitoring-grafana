@@ -1,6 +1,16 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { type Page } from 'puppeteer'
 import { getReports, saveReport } from '../../resolvers/save_report'
 import { client } from '../../../whatsappClient'
+import LastErrorModel, { type LastErrorAttributes } from '../../models/lastError'
+interface Chat {
+  id: {
+    _serialized: string
+  }
+  name: string
+  isGroup: boolean
+}
+
 export class GrafanaScrapingGraphics {
   private readonly page: Page | null = null
   constructor (page: Page | null = null) {
@@ -43,7 +53,8 @@ export class GrafanaScrapingGraphics {
           await this.page.waitForSelector('.css-8tk2dk-input-input')
 
           // Escribe "6" en el campo de entrada
-          await this.page.type('.css-8tk2dk-input-input', '6')
+          const timeQuery = '6'
+          await this.page.type('.css-8tk2dk-input-input', timeQuery)
 
           await this.page.waitForSelector('.css-13htr8w')
 
@@ -95,12 +106,10 @@ export class GrafanaScrapingGraphics {
                 type: e.dataValues.type
               }
             })
-            console.log(oldReport)
-            console.log({ lasgraficas: statusReports.length })
+            console.log({ oldReport })
+            console.log({ IN_GRAPHICS: statusReports.length })
             const newReports = statusReports.filter((report) => {
-              // Leer el contenido del archivo alertingElements.json si existe
-
-              // Buscar si el reporte actual ya está presente en alertingElements
+              // Buscar si el reporte actual ya está presente en la base de datos
               const existingReport = oldReport.find((element: any) => {
                 return element.date === report.date && element.type === report.type
               })
@@ -121,10 +130,22 @@ export class GrafanaScrapingGraphics {
               }
               await saveAllReports(newReports)
               const findError = newReports.find((report) => {
-                return report.type === 'ALERTING'
+                // Obtener la fecha actual
+                const now: Date = new Date()
+
+                // Obtener la fecha del reporte
+                const reportDate: Date = new Date(report.date)
+
+                // Calcular la diferencia en minutos entre la fecha actual y la fecha del reporte
+                const diffMinutes: number = Math.abs(now.getTime() - reportDate.getTime()) / 60000 // 60000 milisegundos = 1 minuto
+
+                // Verificar si la diferencia está dentro de los últimos 5 minutos
+                return diffMinutes <= 30 && report.type === 'ALERTING'
               })
+
               console.log({ findError })
-              if (findError !== null) {
+
+              if (findError != null) {
                 // eslint-disable-next-line
                 const tel = process.env.NODE_PHONE!
                 // eslint-disable-next-line
@@ -135,21 +156,39 @@ export class GrafanaScrapingGraphics {
                 const number_detail = await client.getNumberId(chat_id)
                 // eslint-disable-next-line
                 if (number_detail) {
-                  const chats = await client.getChats()
-                  const groups = chats
-                    // eslint-disable-next-line eqeqeq
-                    .filter(chat => chat.isGroup && chat.name == groupName)
-                    .map(chat => {
+                  const chats: Chat[] = await client.getChats() // Assuming Chat is the correct type
+                  const groups: Array<{ id: string, name: string }> = chats
+                    .filter((chat: Chat) => chat.isGroup && chat.name === groupName)
+                    .map((chat: Chat) => {
                       return {
                         id: chat.id._serialized,
                         name: chat.name
                       }
                     })
+
                   console.log({ groups })
-                  const message = formatMessage(newReports)
+
+                  const message: string = formatMessage(newReports)
+
                   await client.sendMessage(chat_id, message)
+
                   for (const group of groups) {
                     await client.sendMessage(group.id, message)
+                    const lastError: LastErrorAttributes = {
+                      type: 'ALERTING', // Supongamos que el tipo es siempre 'ALERTING'
+                      date: new Date().toISOString(), // La fecha actual
+                      reported: true // Indicando que se ha reportado
+                    }
+                    // Buscar el último error registrado
+                    const existingError = await LastErrorModel.findOne({ order: [['createdAt', 'DESC']] })
+
+                    // Si no hay ningún error existente, insertar uno nuevo
+                    if (existingError === null) {
+                      await LastErrorModel.create(lastError)
+                    } else {
+                      // Actualizar el error existente con la nueva información
+                      await existingError.update(lastError)
+                    }
                   }
                 }
               }
@@ -197,8 +236,10 @@ function formatMessage (reports: Array<{ date: string, type: string, reported: b
   }
 
   let message = `${salutation}, ha ocurrido un error:\n`
-
-  reports.forEach((report, index) => {
+  const filterReport = reports.filter((r) => {
+    return r.type === 'ALERTING'
+  })
+  filterReport.forEach((report, index) => {
     const { date, type } = report
     const formattedDate = formatDate(date)
 

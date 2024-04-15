@@ -3,7 +3,7 @@ import { Client, LocalAuth } from 'whatsapp-web.js'
 
 const wwebVersion = '2.2407.3'
 
-const client = new Client({
+export const client = new Client({
   authStrategy: new LocalAuth({ clientId: 'ey' }),
   puppeteer: {
     headless: true,
@@ -45,4 +45,3 @@ client.on('message', msg => {
 
 void client.initialize()
 
-module.exports = { client }
