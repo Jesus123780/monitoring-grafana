@@ -1,4 +1,4 @@
-import { Model, DataTypes, STRING, UUIDV4 } from 'sequelize'
+import { Model, DataTypes, STRING, UUIDV4, DATE } from 'sequelize'
 import sequelizeConnection from '../db'
 
 export interface ErrorAttributes {
@@ -6,6 +6,7 @@ export interface ErrorAttributes {
   type: string
   date: string
   reported: boolean
+  createdAt?: Date // Agregar createdAt a la interfaz
 }
 
 class ErrorModel extends Model<ErrorAttributes> implements ErrorAttributes {
@@ -13,8 +14,6 @@ class ErrorModel extends Model<ErrorAttributes> implements ErrorAttributes {
   public type!: string
   public date!: string
   public reported!: boolean
-
-  // Necesario para TypeScript para prevenir errores de tipado durante la creación
   public readonly createdAt!: Date
   public readonly updatedAt!: Date
 }
@@ -37,6 +36,10 @@ ErrorModel.init(
     },
     reported: {
       type: DataTypes.BOOLEAN
+    },
+    createdAt: { // Definir la columna createdAt
+      type: DATE,
+      defaultValue: DataTypes.NOW // Utilizar DataTypes.NOW para obtener la fecha actual
     }
   },
   {

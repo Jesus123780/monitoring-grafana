@@ -32,7 +32,7 @@ void (async () => {
   }
 
   // Ejecutar la función cada 10 minutos
-  cron.schedule('*/1 * * * *', async () => {
+  cron.schedule('*/2 * * * *', async () => {
     await runScraping()
   })
 })()

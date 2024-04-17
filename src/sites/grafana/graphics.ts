@@ -3,6 +3,13 @@ import { type Page } from 'puppeteer'
 import { getReports, saveReport } from '../../resolvers/save_report'
 import { client } from '../../../whatsappClient'
 import LastErrorModel, { type LastErrorAttributes } from '../../models/lastError'
+import { MessageMedia } from 'whatsapp-web.js'
+import path from 'path'
+import sound from 'sound-play'
+import { performPanelActions } from './helpers'
+import { parseStatusText } from './helpers/parseStatusText.helpers'
+const audioFile: string = '../.././../notification.mp3'
+
 interface Chat {
   id: {
     _serialized: string
@@ -28,51 +35,7 @@ export class GrafanaScrapingGraphics {
         const box = await namegrap.boundingBox()
         console.log(`Elemento <h6> con título "${titulo}" encontrado.`)
         if (box !== null) {
-          const panelHeader = await this.page.waitForSelector('.css-1ijfwvk-panel-container') as any
-
-          // Realizar hover sobre el elemento
-          await panelHeader.hover()
-
-          const panelMenuButton = await this.page.waitForSelector('button[data-testid="data-testid Panel menu Tokenbox"]') as any
-
-          // Hacer clic en el botón del menú
-          await panelMenuButton.click()
-
-          const viewButton = await this.page.waitForSelector('button[data-testid="data-testid Panel menu item View"]') as any
-
-          // Hacer clic en el botón "View"
-          await viewButton.click()
-
-          // Espera a que el botón esté disponible en la página
-          await this.page.waitForSelector('.css-1jq19ai')
-
-          // Haz clic en el botón
-          await this.page.click('.css-1jq19ai')
-
-          // escribe el filtro
-          await this.page.waitForSelector('.css-8tk2dk-input-input')
-
-          // Escribe "6" en el campo de entrada
-          const timeQuery = '6'
-          await this.page.type('.css-8tk2dk-input-input', timeQuery)
-
-          await this.page.waitForSelector('.css-13htr8w')
-
-          // Haz clic en el botón
-          await this.page.click('.css-13htr8w')
-
-          await this.page.waitForSelector('.css-17w0old')
-
-          await new Promise(resolve => setTimeout(resolve, 5000)) // Espera 5 segundos (ajusta el tiempo según sea necesario)
-          await this.page.$$eval('.css-17w0old', elements => {
-            // Mapear los elementos y devolver sus estilos left y border-bottom-color
-            return elements.map((element: any) => {
-              return {
-                left: element.style.left,
-                borderBottomColor: element.style.borderBottomColor
-              }
-            })
-          })
+          await performPanelActions(this.page)
           const lineAlert = await this.page.$$('.css-17w0old')
           const statusReports = []
           if (lineAlert.length > 0) {
@@ -82,15 +45,8 @@ export class GrafanaScrapingGraphics {
               await this.page.waitForSelector('.css-1bgzxxo .css-1yv1b4t')
               const statusText = await this.page.$eval('.css-1bgzxxo .css-1yv1b4t', (element: any) => element.textContent.trim())
               console.log('🚀 ~ GrafanaScrapingGraphics ~ forawait ~ statusText:', statusText)
-              // Buscar la fecha en el texto usando una expresión regular
-              const dateRegex = /(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})/g
-              const dateMatch = dateRegex.exec(String(statusText))
-              const date = dateMatch !== null ? dateMatch[0] : ''
-
-              // Buscar el tipo de alerta en el texto usando una expresión regular
-              const typeRegex = /(ALERTING|PENDING|OK)/g
-              const typeMatch = typeRegex.exec(String(statusText))
-              const type = typeMatch !== null ? typeMatch[0] : ''
+              // Realizar el parsing del texto y guardar los reportes
+              const { date, type } = parseStatusText(statusText as string)
               statusReports.push({
                 date,
                 type,
@@ -106,8 +62,9 @@ export class GrafanaScrapingGraphics {
                 type: e.dataValues.type
               }
             })
-            console.log({ oldReport })
+            console.log({ TODAY_SAVED_REPORT: oldReport })
             console.log({ IN_GRAPHICS: statusReports.length })
+
             const newReports = statusReports.filter((report) => {
               // Buscar si el reporte actual ya está presente en la base de datos
               const existingReport = oldReport.find((element: any) => {
@@ -117,7 +74,7 @@ export class GrafanaScrapingGraphics {
               // Si no se encuentra el reporte actual, se considera como un nuevo reporte
               return existingReport === undefined || existingReport === null
             })
-            console.log({ new: newReports.length })
+            console.log({ NEWS_REPORTS: newReports.length })
 
             if (newReports.length > 0) {
               async function saveAllReports (reports: Array<{ date: string, type: string, reported: boolean }>): Promise<void> {
@@ -140,12 +97,30 @@ export class GrafanaScrapingGraphics {
                 const diffMinutes: number = Math.abs(now.getTime() - reportDate.getTime()) / 60000 // 60000 milisegundos = 1 minuto
 
                 // Verificar si la diferencia está dentro de los últimos 5 minutos
-                return diffMinutes <= 30 && report.type === 'ALERTING'
+                return diffMinutes <= 15 && report.type === 'ALERTING'
               })
+              console.log({ new_error: Boolean(findError) })
 
-              console.log({ findError })
+              // Instancia de PlaySound
+
+              // Ruta al archivo de audio
 
               if (findError != null) {
+                // sound notification
+                const filePath = path.join(__dirname, audioFile)
+                await sound.play(filePath)
+
+                const imageName = `grafica_${titulo}.png`
+                // Esperar a que el elemento deseado esté presente en la página
+                await this.page.waitForSelector('.css-1978mzo-canvas-content')
+
+                // Obtener el cuadro del elemento deseado
+                const elemento = await this.page.$('.css-1978mzo-canvas-content')
+                if (elemento !== null) {
+                  const dimensions = await elemento.boundingBox()
+
+                  await this.getScreenGraphics(imageName, dimensions)
+                }
                 // eslint-disable-next-line
                 const tel = process.env.NODE_PHONE!
                 // eslint-disable-next-line
@@ -168,12 +143,13 @@ export class GrafanaScrapingGraphics {
 
                   console.log({ groups })
 
-                  const message: string = formatMessage(newReports)
-
-                  await client.sendMessage(chat_id, message)
-
+                  const message: string = formatMessage()
+                  // enviar a mi numero de celular
+                  const media = MessageMedia.fromFilePath(imageName)
+                  await client.sendMessage(chat_id, media, { caption: message })
+                  // buscar todos los grupos de WhatsApp
                   for (const group of groups) {
-                    await client.sendMessage(group.id, message)
+                    await client.sendMessage(group.id, media, { caption: message })
                     const lastError: LastErrorAttributes = {
                       type: 'ALERTING', // Supongamos que el tipo es siempre 'ALERTING'
                       date: new Date().toISOString(), // La fecha actual
@@ -220,9 +196,23 @@ export class GrafanaScrapingGraphics {
     // Tomar la captura de pantalla después de que el botón esté presente
     await this.page.screenshot({ path: nombreArchivo })
   }
+
+  async getScreenGraphics (nombreArchivo: string, dimensions: any): Promise<Buffer> {
+    if (this.page === null) throw new Error('No se ha iniciado una página.')
+
+    return await this.page.screenshot({
+      path: nombreArchivo,
+      clip: {
+        x: dimensions.x - 100, // Ajusta el valor de x para capturar más a la izquierda
+        y: dimensions.y - 100, // Ajusta el valor de y para capturar más arriba
+        width: dimensions.width + 200, // Aumenta el ancho para capturar más a la derecha
+        height: dimensions.height + 200 // Aumenta la altura para capturar más abajo
+      }
+    })
+  }
 }
 
-function formatMessage (reports: Array<{ date: string, type: string, reported: boolean }>): string {
+function formatMessage (): string {
   const currentTime = new Date()
   const currentHour = currentTime.getHours()
   let salutation = ''
@@ -235,24 +225,9 @@ function formatMessage (reports: Array<{ date: string, type: string, reported: b
     salutation = 'Hola, Buenas noches'
   }
 
-  let message = `${salutation}, ha ocurrido un error:\n`
-  const filterReport = reports.filter((r) => {
-    return r.type === 'ALERTING'
-  })
-  filterReport.forEach((report, index) => {
-    const { date, type } = report
-    const formattedDate = formatDate(date)
+  let message = `${salutation}, equipo\n`
 
-    message += `- A las ${formattedDate} de tipo ${type}\n`
-  })
-
-  message += 'Por favor, nos ayudan con unos errores. Muchas gracias, team 📈 🚀'
+  message += 'Por favor nos ayudan con unos errores. Muchas gracias, team 📈 🚀'
 
   return message
-}
-
-function formatDate (dateString: string): string {
-  const date = new Date(dateString)
-  const formattedTime = date.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
-  return formattedTime
 }

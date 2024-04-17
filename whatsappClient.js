@@ -44,4 +44,3 @@ client.on('message', msg => {
 })
 
 void client.initialize()
-
