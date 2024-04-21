@@ -3,6 +3,7 @@
 import { Dashboard, GrafanaLogin } from './sites'
 import { GrafanaScrapingGraphics } from './sites/grafana/graphics'
 import { GRAPHICS } from './helpers/graphics'
+import { checkWiFiConnection } from './helpers/wifi.helpers'
 import cron from 'node-cron'
 
 void (async () => {
@@ -31,8 +32,13 @@ void (async () => {
     }
   }
 
-  // Ejecutar la función cada 10 minutos
-  cron.schedule('*/2 * * * *', async () => {
-    await runScraping()
-  })
+  // verify wifi
+  const connectWifi: boolean = await checkWiFiConnection()
+
+  if (connectWifi) {
+    // Ejecutar la función cada 10 minutos
+    cron.schedule('*/2 * * * *', async () => {
+      await runScraping()
+    })
+  }
 })()

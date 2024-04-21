@@ -28,7 +28,7 @@ export async function performPanelActions (page: Page): Promise<void> {
   await page.waitForSelector('.css-8tk2dk-input-input')
 
   // Escribe "1 hour" en el campo de entrada
-  const timeQuery = '1 hour'
+  const timeQuery = '6'
   await page.type('.css-8tk2dk-input-input', timeQuery)
 
   await page.waitForSelector('.css-13htr8w')
