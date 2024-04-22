@@ -12,7 +12,9 @@ const dbPassword = process.env.PASS_DB
 
 const dialectOptions: Record<Dialect, any> = {
   postgres: {
-
+    ssl: {
+      rejectUnauthorized: process.env.NODE_ENV === 'production'
+    }
   },
   mysql: undefined,
   sqlite: undefined,
