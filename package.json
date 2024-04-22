@@ -1,6 +1,7 @@
 {
   "author": "",
   "dependencies": {
+    "@types/node-fetch": "^2.6.11",
     "audic": "^3.0.2",
     "babel": "^6.23.0",
     "dotenv": "^16.4.5",
@@ -15,7 +16,7 @@
     "sequelize": "6.37.3",
     "sound-play": "1.1.0",
     "ts-retry": "4.2.5",
-    "whatsapp-web.js": "1.23.0"
+    "whatsapp-web.js": "^1.16.4-alpha.0"
   },
   "description": "",
   "devDependencies": {
