@@ -17,7 +17,7 @@ FROM base as build
 COPY package*.json ./
 
 # Instalar las dependencias de desarrollo
-RUN npm install --production=false
+RUN npm install
 
 # Copiar el código de la aplicación
 COPY . .
