@@ -1,5 +1,5 @@
 # Establecer la imagen base de Node.js
-ARG NODE_VERSION=19.5.0
+ARG NODE_VERSION=16.17.0
 FROM node:${NODE_VERSION}-slim as base
 
 LABEL fly_launch_runtime="NodeJS"
