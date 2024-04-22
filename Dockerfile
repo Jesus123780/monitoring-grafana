@@ -10,7 +10,7 @@ WORKDIR /app
 COPY . .
 
 # Instalar las dependencias de producción
-RUN npm install --production
+RUN npm install --production && npm prune --production
 
 # Exponer el puerto en el que se ejecutará la aplicación
 EXPOSE 3000
