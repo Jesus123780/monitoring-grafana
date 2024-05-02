@@ -33,12 +33,12 @@ void (async () => {
   }
 
   // verify wifi
-  const connectWifi: boolean = await checkWiFiConnection()
 
-  if (connectWifi) {
-    // Ejecutar la función cada 10 minutos
-    cron.schedule('*/2 * * * *', async () => {
+  // Ejecutar la función cada 10 minutos
+  cron.schedule('*/1 * * * *', async () => {
+    const connectWifi: boolean = await checkWiFiConnection()
+    if (connectWifi) {
       await runScraping()
-    })
-  }
+    }
+  })
 })()

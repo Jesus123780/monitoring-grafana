@@ -127,8 +127,10 @@ export class GrafanaScrapingGraphics {
                 const groupName = process.env.NODE_GROUP_WS!
                 // eslint-disable-next-line
                 const chat_id = tel.substring(1) + '@c.us'
+                console.log("🚀 ~ GrafanaScrapingGraphics ~ forawait ~ number_detail:", chat_id)
                 // eslint-disable-next-line
                 const number_detail = await client.getNumberId(chat_id)
+                
                 // eslint-disable-next-line
                 if (number_detail) {
                   const chats: Chat[] = await client.getChats() // Assuming Chat is the correct type

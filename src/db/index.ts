@@ -12,9 +12,9 @@ const dbPassword = process.env.PASS_DB
 
 const dialectOptions: Record<Dialect, any> = {
   postgres: {
-    ssl: {
-      rejectUnauthorized: process.env.NODE_ENV === 'production'
-    }
+    // process.env.NODE_ENV === 'production'  &&ssl: {
+    //   rejectUnauthorized: process.env.NODE_ENV === 'production'
+    // }
   },
   mysql: undefined,
   sqlite: undefined,
@@ -32,6 +32,6 @@ const sequelizeConnection = new Sequelize(dbName, dbUser, dbPassword, {
   dialectOptions: (dbDriver !== null) && (Boolean(dialectOptions[dbDriver])) ? dialectOptions[dbDriver] : {},
   ssl: false
 })
-sequelizeConnection.sync()
+// sequelizeConnection.sync()
 
 export default sequelizeConnection
